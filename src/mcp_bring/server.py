@@ -10,6 +10,7 @@ Auth: Set BRING_EMAIL and BRING_PASSWORD environment variables.
 import os
 import asyncio
 from contextlib import asynccontextmanager
+from dataclasses import asdict
 from typing import Any
 
 import aiohttp
@@ -56,12 +57,11 @@ async def lifespan(server: FastMCP):
             allowlist_entries = {s.strip() for s in raw_allowlist.split(",") if s.strip()}
             if allowlist_entries:
                 all_lists_result = await bring.load_lists()
-                all_lists = all_lists_result.get("lists", [])
                 allowed_list_uuids = {
-                    lst["listUuid"]
-                    for lst in all_lists
-                    if lst.get("listUuid") in allowlist_entries
-                    or lst.get("name") in allowlist_entries
+                    lst.listUuid
+                    for lst in all_lists_result.lists
+                    if lst.listUuid in allowlist_entries
+                    or lst.name in allowlist_entries
                 }
 
         yield {"bring": bring, "allowed_list_uuids": allowed_list_uuids}
@@ -128,11 +128,11 @@ async def get_lists(ctx: Context) -> list[dict[str, Any]]:
     bring = _bring(ctx)
     try:
         result = await bring.load_lists()
-        lists = result.get("lists", [])
+        lists = result.lists
         allowed = _allowed_uuids(ctx)
         if allowed is not None:
-            lists = [lst for lst in lists if lst.get("listUuid") in allowed]
-        return lists
+            lists = [lst for lst in lists if lst.listUuid in allowed]
+        return [lst.to_dict() for lst in lists]
     except Exception as e:
         _handle_error(e, "fetching lists")
 
@@ -154,8 +154,8 @@ async def get_list_items(ctx: Context, list_uuid: str) -> dict[str, Any]:
     try:
         result = await bring.get_list(list_uuid)
         return {
-            "purchase": result.get("purchase", []),
-            "recently": result.get("recently", []),
+            "purchase": [i.to_dict() for i in result.items.purchase],
+            "recently": [i.to_dict() for i in result.items.recently],
         }
     except Exception as e:
         _handle_error(e, f"fetching items for list {list_uuid}")
@@ -174,7 +174,7 @@ async def get_list_details(ctx: Context, list_uuid: str) -> list[dict[str, Any]]
     bring = _bring(ctx)
     try:
         result = await bring.get_all_item_details(list_uuid)
-        return result
+        return [item.to_dict() for item in result.items]
     except Exception as e:
         _handle_error(e, f"fetching item details for list {list_uuid}")
 
@@ -191,7 +191,7 @@ async def get_list_users(ctx: Context, list_uuid: str) -> list[dict[str, Any]]:
     bring = _bring(ctx)
     try:
         result = await bring.get_lists_users(list_uuid)
-        return result
+        return [asdict(u) for u in result.users]
     except Exception as e:
         _handle_error(e, f"fetching users for list {list_uuid}")
 
@@ -208,7 +208,7 @@ async def get_list_activity(ctx: Context, list_uuid: str) -> dict[str, Any]:
     bring = _bring(ctx)
     try:
         result = await bring.get_activity(list_uuid)
-        return result
+        return result.to_dict()
     except Exception as e:
         _handle_error(e, f"fetching activity for list {list_uuid}")
 
@@ -404,7 +404,7 @@ async def get_account_info(ctx: Context) -> dict[str, Any]:
     bring = _bring(ctx)
     try:
         result = await bring.get_user_account()
-        return result
+        return result.to_dict()
     except Exception as e:
         _handle_error(e, "fetching account info")
 
