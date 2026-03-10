@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcp-bring"
+version = "0.1.0"
+description = "MCP server for the Bring! shopping list app"
+readme = "README.md"
+authors = [
+    {name = "Alex"}
+]
+license = {text = "MIT"}
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp>=2.0.0",
+    "bring-api>=1.1.0",
+    "aiohttp>=3.9.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[project.scripts]
+mcp-bring = "mcp_bring.server:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+]
