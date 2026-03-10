@@ -16,7 +16,7 @@ import aiohttp
 from bring_api import Bring
 from bring_api.exceptions import BringAuthException, BringRequestException
 from bring_api.types import BringItemOperation
-from fastmcp import FastMCP
+from fastmcp import FastMCP, Context
 from fastmcp.exceptions import ToolError
 
 
@@ -81,17 +81,17 @@ mcp = FastMCP(
 # Helper
 # ---------------------------------------------------------------------------
 
-def _bring(ctx) -> Bring:
+def _bring(ctx: Context) -> Bring:
     """Extract Bring instance from FastMCP context."""
     return ctx.request_context.lifespan_context["bring"]
 
 
-def _allowed_uuids(ctx) -> set[str] | None:
+def _allowed_uuids(ctx: Context) -> set[str] | None:
     """Return the set of allowed list UUIDs, or None if no allowlist is configured."""
     return ctx.request_context.lifespan_context.get("allowed_list_uuids")
 
 
-def _check_list_allowed(ctx, list_uuid: str) -> None:
+def _check_list_allowed(ctx: Context, list_uuid: str) -> None:
     """Raise ToolError if list_uuid is not permitted by the allowlist."""
     allowed = _allowed_uuids(ctx)
     if allowed is not None and list_uuid not in allowed:
@@ -118,7 +118,7 @@ def _handle_error(e: Exception, action: str) -> None:
 # ---------------------------------------------------------------------------
 
 @mcp.tool
-async def get_lists(ctx) -> list[dict[str, Any]]:
+async def get_lists(ctx: Context) -> list[dict[str, Any]]:
     """
     Get all Bring! shopping lists for the logged-in user.
 
@@ -138,7 +138,7 @@ async def get_lists(ctx) -> list[dict[str, Any]]:
 
 
 @mcp.tool
-async def get_list_items(ctx, list_uuid: str) -> dict[str, Any]:
+async def get_list_items(ctx: Context, list_uuid: str) -> dict[str, Any]:
     """
     Get the current items in a Bring! shopping list.
 
@@ -162,7 +162,7 @@ async def get_list_items(ctx, list_uuid: str) -> dict[str, Any]:
 
 
 @mcp.tool
-async def get_list_details(ctx, list_uuid: str) -> list[dict[str, Any]]:
+async def get_list_details(ctx: Context, list_uuid: str) -> list[dict[str, Any]]:
     """
     Get detailed information about items in a Bring! shopping list,
     including item attributes, images, and metadata.
@@ -180,7 +180,7 @@ async def get_list_details(ctx, list_uuid: str) -> list[dict[str, Any]]:
 
 
 @mcp.tool
-async def get_list_users(ctx, list_uuid: str) -> list[dict[str, Any]]:
+async def get_list_users(ctx: Context, list_uuid: str) -> list[dict[str, Any]]:
     """
     Get users who share a Bring! shopping list.
 
@@ -197,7 +197,7 @@ async def get_list_users(ctx, list_uuid: str) -> list[dict[str, Any]]:
 
 
 @mcp.tool
-async def get_list_activity(ctx, list_uuid: str) -> dict[str, Any]:
+async def get_list_activity(ctx: Context, list_uuid: str) -> dict[str, Any]:
     """
     Get recent activity for a Bring! shopping list (who added/removed what).
 
@@ -219,7 +219,7 @@ async def get_list_activity(ctx, list_uuid: str) -> dict[str, Any]:
 
 @mcp.tool
 async def add_item(
-    ctx,
+    ctx: Context,
     list_uuid: str,
     item_name: str,
     spec: str = "",
@@ -251,7 +251,7 @@ async def add_item(
 
 @mcp.tool
 async def add_items(
-    ctx,
+    ctx: Context,
     list_uuid: str,
     items: list[dict[str, str]],
 ) -> dict[str, Any]:
@@ -303,7 +303,7 @@ async def add_items(
 
 @mcp.tool
 async def complete_item(
-    ctx,
+    ctx: Context,
     list_uuid: str,
     item_name: str,
 ) -> dict[str, str]:
@@ -332,7 +332,7 @@ async def complete_item(
 
 @mcp.tool
 async def remove_item(
-    ctx,
+    ctx: Context,
     list_uuid: str,
     item_name: str,
 ) -> dict[str, str]:
@@ -361,7 +361,7 @@ async def remove_item(
 
 @mcp.tool
 async def update_item_spec(
-    ctx,
+    ctx: Context,
     list_uuid: str,
     item_name: str,
     spec: str,
@@ -395,7 +395,7 @@ async def update_item_spec(
 # ---------------------------------------------------------------------------
 
 @mcp.tool
-async def get_account_info(ctx) -> dict[str, Any]:
+async def get_account_info(ctx: Context) -> dict[str, Any]:
     """
     Get information about the currently logged-in Bring! account.
 
