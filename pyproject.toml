@@ -11,7 +11,7 @@ authors = [
     {name = "Alex"}
 ]
 license = {text = "MIT"}
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "fastmcp>=2.0.0",
     "bring-api>=1.1.0",
