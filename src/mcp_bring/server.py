@@ -7,6 +7,7 @@ other MCP-compatible AI assistants.
 Auth: Set BRING_EMAIL and BRING_PASSWORD environment variables.
 """
 
+import logging
 import os
 import asyncio
 from contextlib import asynccontextmanager
@@ -19,6 +20,8 @@ from bring_api.exceptions import BringAuthException, BringRequestException
 from bring_api.types import BringItemOperation
 from fastmcp import FastMCP, Context
 from fastmcp.exceptions import ToolError
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -415,7 +418,13 @@ async def get_account_info(ctx: Context) -> dict[str, Any]:
 
 def main():
     """Entry point for the mcp-bring CLI."""
-    mcp.run()
+    transport = os.environ.get("MCP_TRANSPORT", "stdio")
+    logger.info("Starting mcp-bring server (transport=%s)", transport)
+    if transport == "streamable-http":
+        port = int(os.environ.get("PORT", "3000"))
+        mcp.run(transport="streamable-http", host="0.0.0.0", port=port)
+    else:
+        mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
