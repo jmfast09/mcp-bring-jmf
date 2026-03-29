@@ -23,5 +23,8 @@ COPY --from=builder /usr/local/bin/mcp-bring /usr/local/bin/mcp-bring
 USER appuser
 
 ENV LOG_LEVEL=WARNING
+# Universal MCP env vars — consistent across Python and TypeScript MCPs
+ENV MCP_TRANSPORT="streamable-http"
+ENV PORT="3000"
 
 ENTRYPOINT ["mcp-bring"]

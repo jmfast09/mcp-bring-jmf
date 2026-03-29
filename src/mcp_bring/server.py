@@ -417,14 +417,13 @@ async def get_account_info(ctx: Context) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 def main():
-    """Entry point for the mcp-bring CLI."""
-    transport = os.environ.get("MCP_TRANSPORT", "stdio")
-    logger.info("Starting mcp-bring server (transport=%s)", transport)
-    if transport == "streamable-http":
-        port = int(os.environ.get("PORT", "3000"))
-        mcp.run(transport="streamable-http", host="0.0.0.0", port=port)
-    else:
-        mcp.run(transport="stdio")
+    """Entry point for the mcp-bring CLI.
+
+    Transport is selected via MCP_TRANSPORT (default: streamable-http).
+    This is our universal env var — consistent across Python and TypeScript MCPs.
+    """
+    transport = os.environ.get("MCP_TRANSPORT", "streamable-http")
+    mcp.run(transport=transport)
 
 
 if __name__ == "__main__":
