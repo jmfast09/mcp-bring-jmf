@@ -425,7 +425,7 @@ def main():
       FASTMCP_HOST       (default: 0.0.0.0)
       FASTMCP_PORT       (default: 8000)
     """
-    mcp.run()
+    mcp.run(stateless_http=True)
 
 
 if __name__ == "__main__":
